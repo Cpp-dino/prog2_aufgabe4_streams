@@ -15,8 +15,24 @@ public class Main {
     public static void main(String... args) {
 
         // Task I: Students
+        System.out.println(
+                students(
+                        List.of(
+                                new Student("A", 30, Enrollment.IFM),
+                                new Student("B", 45, Enrollment.IFM),
+                                new Student("C", 60, Enrollment.ELT),
+                                new Student("D", 45, Enrollment.ARCH),
+                                new Student("E", 80, Enrollment.IFM))));
 
         // Task II: Set of ECTS of all IFM students
+        System.out.println(
+                ifmCps(
+                        List.of(
+                                new Student("A", 35, Enrollment.IFM),
+                                new Student("B", 35, Enrollment.IFM),
+                                new Student("C", 60, Enrollment.ELT),
+                                new Student("D", 45, Enrollment.ARCH),
+                                new Student("E", 80, Enrollment.IFM))));
 
         // Task III: Random
         System.out.println(random());
@@ -34,8 +50,15 @@ public class Main {
      * @return Sum of credit points of all students
      */
     public static Integer students(List<Student> studentList) {
-        // TODO
-        throw new UnsupportedOperationException();
+        // return sum of credit points over list of students:
+        // '.stream()'               -> create 'Stream' from 'List'
+        // '.mapToInt(Student::cps)' -> turn 'Stream' into 'IntStream' via 'mapToInt()' with
+        //                              referenced method 'Student.cps()' - returning credit points (as int)
+        // '.sum()'                  -> get sum over all values
+        return studentList
+                    .stream()
+                    .mapToInt(Student::cps)
+                    .sum();
     }
 
     /**
@@ -47,8 +70,19 @@ public class Main {
      * @return Set of credit points of all IFM students
      */
     public static Set<Integer> ifmCps(List<Student> studentList) {
-        // TODO
-        throw new UnsupportedOperationException();
+        // return set of unique credit point values over list of students:
+        // '.stream()'               -> create 'Stream' from 'List'
+        // '.filter(Student::isIFM)' -> filter to only get students enrolled in Computer Science
+        // '.map(Student::cps)'      -> turn each 'Student' into 'int' with referenced
+        //                              method 'Student.cps()' - returning credit points (as int)
+        // '.collect(Collectors.toCollection(HashSet::new))'
+        //                           -> create new 'HashSet' from all (unique) values of the 'Stream' via
+        //                              'Collectors.toCollection()' with referenced constructor 'HashSet::new'
+        return studentList
+            .stream()
+            .filter(Student::isIFM)
+            .map(Student::cps)
+            .collect(Collectors.toCollection(HashSet::new));
     }
 
     /**
