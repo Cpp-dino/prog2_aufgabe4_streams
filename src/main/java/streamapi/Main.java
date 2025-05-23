@@ -1,6 +1,9 @@
 package streamapi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +41,7 @@ public class Main {
         System.out.println(random());
 
         // Task IV+V: Resources
-
+        System.out.println(resources("file.txt"));
     }
 
     /**
@@ -113,8 +116,12 @@ public class Main {
      * @return An open {@link InputStream} for the resource file
      */
     private static InputStream getResourceAsStream(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
+        // ressource named 'path' is located in directory 'ressources'
+        final String ressourcePath = "streamapi/" + path;
+        // get 'ClassLoader' for this class ('Main') to access known class pathes,
+        // java searches for 'streamapi/path' in class pathes for class 'Main'
+        // ('ressources' directory is added as class path to class 'Main' by Gradle) 
+        return Main.class.getClassLoader().getResourceAsStream(ressourcePath);
     }
 
     /**
@@ -128,7 +135,28 @@ public class Main {
      * @return String of all matching lines, separated by {@code "\n"}
      */
     public static String resources(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
+        String result = "";
+
+        try (InputStream stream = getResourceAsStream(path)) {
+            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
+
+            // return lines concatinated and '\n'-separated only including lines starting with 'a' and min. length of 1:
+            // '.lines()'                           -> create 'Stream' of lines from 'BufferedReader'
+            // '.filter(s -> s.startsWith("a"))'    -> filter to only get lines starting with 'a'
+            // '.filter(s -> !(s.length() < 2))'    -> filter to only get lines with min. length of 1
+            // '.map(s -> (s + "\n"))'              -> append '\n' to end of each (remaining) line
+            // '.reduce("", String::concat)'        -> turn 'Stream' of 'Strings' into single 'String' using
+            //                                         referenced method 'String.concat()' to concatinating the lines
+            result = r
+                .lines()
+                .filter(s -> s.startsWith("a"))
+                .filter(s -> !(s.length() < 2))
+                .map(s -> (s + "\n"))
+                .reduce("", String::concat);
+        } catch (IOException e) {
+            System.err.println("Ouch, that didn't work: \n" + e.getMessage());
+        }
+
+        return result;
     }
 }
